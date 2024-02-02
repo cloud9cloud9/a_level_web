@@ -1,7 +1,6 @@
 package com.example.hw26.entity;
 
 import com.example.hw26.framework.Kikernate;
-
 import java.util.List;
 
 public class UserService {

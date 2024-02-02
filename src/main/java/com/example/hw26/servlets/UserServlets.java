@@ -1,7 +1,6 @@
 package com.example.hw26.servlets;
 
 import com.example.hw26.entity.User;
-import com.example.hw26.entity.UserDao;
 import com.example.hw26.entity.UserService;
 import com.example.real.HelloServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,11 +21,10 @@ public class UserServlets extends HelloServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String contextPath = request.getPathInfo();
         response.setContentType("application/json");
         try {
-            if (contextPath != null) {
-                String stringId = contextPath.substring(1);
+            if (request.getPathInfo() != null) {
+                String stringId = request.getPathInfo().substring(1);
                 User user = userService.getUserById(Integer.parseInt(stringId));
                 response.getWriter().println(mapper.writeValueAsString(user));
             } else {
@@ -42,23 +40,32 @@ public class UserServlets extends HelloServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String name = request.getParameter("userName");
-        int age = Integer.parseInt(request.getParameter("age"));
-        String email = request.getParameter("email");
-        User newUser = User.builder().userName(name).age(age).email(email).build();
-        userService.saveUser(newUser);
-        response.getWriter().append("Person added: " + mapper.writeValueAsString(newUser));
+        PrintWriter out = response.getWriter();
+        StringBuffer sf = new StringBuffer();
+        String line = null;
+        try {
+            BufferedReader reader = request.getReader();
+            while((line = reader.readLine()) != null){
+                sf.append(line);
+            }
+            User user = mapper.readValue(sf.toString(), User.class);
+            userService.saveUser(user);
+            out.write(mapper.writeValueAsString(user));
+
+        } catch (Exception e){
+            out.write("{\"error\" : \"" + e.getMessage() + "\"}");
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out = response.getWriter();
-        String contextPath = request.getPathInfo();
+        response.setContentType("application/json");
         StringBuilder sb = new StringBuilder();
         String line = null;
         try {
-            if (contextPath != null) {
-                String stringId = contextPath.substring(1);
+            if (request.getPathInfo() != null) {
+                String stringId = request.getPathInfo().substring(1);
                 BufferedReader reader = request.getReader();
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);

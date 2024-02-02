@@ -33,9 +33,8 @@ public class Kikernate {
     }
 
     public static void generateUpdate(User user) {
-        Field[] fields = getDeclaredFields();
-        String fieldName = readFieldName(fields);
-        String fieldValue = readFiledValue(user, fields);
+        String fieldName = readFieldName(getDeclaredFields());
+        String fieldValue = readFiledValue(user, getDeclaredFields());
         System.out.println(String.format(update, getTableInfo().name(), fieldName, fieldValue));
     }
 
